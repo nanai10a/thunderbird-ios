@@ -20,8 +20,13 @@ struct EmailListView: View {
     private func refresh() async {
         guard let account: Account = accountManager.allAccounts.first else { return }
         isRefreshing = true
-        if let emails: [Email] = try? await account.emails() {
-            self.emails = emails
+        let manager: MailboxManager = MailboxManager(account: account)
+        await manager.refreshMailboxes()
+        if let mailbox: Mailbox = manager.mailbox("INBOX") ?? manager.mailboxes.first(where: { $0.role == .inbox }) {
+            let fetched: [Email] = await manager.emails(in: mailbox)
+            if manager.error == nil {
+                emails = fetched
+            }
         }
         isRefreshing = false
     }
