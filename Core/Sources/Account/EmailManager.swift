@@ -29,7 +29,7 @@ public final class EmailManager {
                 self.email = Email(message)
             case .jmap:
                 let client: JMAPClient = try await account.jmapClient
-                let emails: [JMAP.Email] = try await client.emails([email.id])
+                let emails: [JMAP.Email] = try await client.emails([email.id], fullBody: true)
                 guard !emails.isEmpty else {
                     throw JMAPError.method(.invalidResultReference)
                 }

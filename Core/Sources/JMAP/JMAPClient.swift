@@ -72,7 +72,7 @@ public class JMAPClient {
         }
     }
 
-    public func emails(_ ids: [String]) async throws -> [Email] {
+    public func emails(_ ids: [String], fullBody: Bool = false) async throws -> [Email] {
         if let session {
             guard let id: String = session.accounts.keys.first else {
                 throw JMAPError.method(.accountNotFound)
@@ -80,7 +80,7 @@ public class JMAPClient {
             guard
                 let response: MethodGetResponse = try await URLSession.shared.jmapAPI(
                     [
-                        Email.GetMethod(id, ids: ids)
+                        Email.GetMethod(id, ids: ids, configuration: fullBody ? .allBodyParts : nil)
                     ], url: session.apiURL, authorization: server.authorization!
                 ).first as? MethodGetResponse
             else {

@@ -264,7 +264,11 @@ extension Account {
             let message: Message = try await client.fetch(uid: uid)
             return Email(message)
         case .jmap:
-            throw AccountError.emailAddressNotSupported
+            let client: JMAPClient = try await jmapClient
+            guard let message: JMAP.Email = try await client.emails([email.id], fullBody: true).first else {
+                throw JMAPError.method(.invalidResultReference)
+            }
+            return Email(message)
         }
     }
 }
