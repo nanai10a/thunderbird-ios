@@ -5,7 +5,7 @@
 import Foundation
 
 /// Common mailbox model represents a single JMAP or IMAP mailbox, folder or Gmail label.
-public struct Mailbox: CustomStringConvertible, Hashable, Identifiable {
+public struct Mailbox: CustomStringConvertible, Hashable, Identifiable, Sendable {
     /// Common mailbox adopts JMAP roles; extends IMAP mailboxes with best guess as a client convenience.
     public typealias Role = JMAP.Mailbox.Role
 
