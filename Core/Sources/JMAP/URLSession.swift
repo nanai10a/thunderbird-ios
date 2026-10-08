@@ -48,11 +48,13 @@ extension URLSession {
 
                 // Map generic parts of [query response.](https://jmap.io/spec/rfc8620/#section-5.5)
                 guard let ids: [String] = object["ids"] as? [String],
-                    let position: Int = object["position"] as? Int,
-                    let total: Int = object["total"] as? Int
+                    let position: Int = object["position"] as? Int
                 else {
                     throw URLError(.cannotDecodeContentData)
                 }
+                // `total` may be omitted by servers that skip counting
+                // (e.g. Stalwart with calculateTotal: false); fall back to the returned page.
+                let total: Int = object["total"] as? Int ?? ids.count
                 return MethodQueryResponse(name, ids: ids, position: position, total: total, id: id)
             case "set":
 
