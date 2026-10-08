@@ -110,7 +110,14 @@ extension JMAP.Server {
         guard server.serverProtocol == .jmap else {
             throw JMAPError.serverProtocolMismatch
         }
-        self.init(authorization: .bearer(authorization.rawValue), host: server.hostname, port: server.port)
+        switch authorization {
+        case .basic(let user, let password):
+            self.init(authorization: .basic(user, password), host: server.hostname, port: server.port)
+        case .oauth(_, let token, _):
+            self.init(authorization: .bearer(token.value), host: server.hostname, port: server.port)
+        case .none:
+            self.init(authorization: .empty, host: server.hostname, port: server.port)
+        }
     }
 }
 
