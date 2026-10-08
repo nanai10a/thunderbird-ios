@@ -40,7 +40,7 @@ struct EmailCellView: View {
     init(email: Email) {
         self.senderText = email.sender.first?.addresses.first?.description ?? ""
         self.headerText = email.subject ?? "Untitled"
-        self.bodyText = "Body text"
+        self.bodyText = email.body?.preview ?? email.preview ?? "Body text"
         self.dateSent = email.sent ?? Date()
         self.unread = false
         self.newEmail = false

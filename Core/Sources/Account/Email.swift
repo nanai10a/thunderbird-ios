@@ -23,6 +23,7 @@ public struct Email: CustomStringConvertible, Identifiable, Sendable {
     public let inReplyTo: [String]
     public var subject: String?
     public var body: EmailBody?
+    public var preview: String?
     public let blobID: String?
     public let uid: UID?
 
@@ -40,6 +41,7 @@ public struct Email: CustomStringConvertible, Identifiable, Sendable {
         inReplyTo: [String] = [],
         subject: String? = nil,
         body: EmailBody? = nil,
+        preview: String? = nil,
         blobID: String? = nil,
         uid: UID? = nil,
         id: String? = nil
@@ -57,6 +59,7 @@ public struct Email: CustomStringConvertible, Identifiable, Sendable {
         self.inReplyTo = inReplyTo
         self.subject = subject
         self.body = body
+        self.preview = preview
         self.blobID = blobID
         self.uid = uid
         self.id = id ?? UUID().uuidString(1)
@@ -123,6 +126,7 @@ extension Email {
             inReplyTo: email.inReplyTo ?? [],
             subject: email.subject,
             body: try? EmailBody(email: email),
+            preview: email.preview,
             blobID: email.blobID,
             id: email.id
         )
