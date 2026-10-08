@@ -76,6 +76,10 @@ public struct Email: Decodable, Equatable, Hashable, Identifiable, Sendable {
         public static func == (lhs: Self, rhs: Self) -> Bool {
             lhs.partID == rhs.partID && lhs.size == rhs.size && lhs.type == rhs.type
         }
+
+        private enum CodingKeys: String, CodingKey {
+            case partID = "partId", blobID = "blobId", size, headers, name, type, charset, disposition, cid, language, location, subParts
+        }
     }
 
     public struct Header: Decodable, Sendable {
@@ -106,6 +110,7 @@ public struct Email: Decodable, Equatable, Hashable, Identifiable, Sendable {
     public let attachments: [BodyPart]
     public let hasAttachment: Bool
     public let preview: String?
+    public let bodyValues: [String: BodyValue]
 
     public init(
         blobID: String,
@@ -131,6 +136,7 @@ public struct Email: Decodable, Equatable, Hashable, Identifiable, Sendable {
         attachments: [BodyPart] = [],
         hasAttachment: Bool = false,
         preview: String? = nil,
+        bodyValues: [String: BodyValue] = [:],
         id: String
     ) {
         self.blobID = blobID
@@ -156,6 +162,7 @@ public struct Email: Decodable, Equatable, Hashable, Identifiable, Sendable {
         self.attachments = attachments
         self.hasAttachment = hasAttachment
         self.preview = preview
+        self.bodyValues = bodyValues
         self.id = id
     }
 
@@ -181,15 +188,23 @@ public struct Email: Decodable, Equatable, Hashable, Identifiable, Sendable {
         bcc = try container.decodeIfPresent([EmailAddress.Group].self, forKey: .bcc)?.erased()
         subject = try container.decodeIfPresent(String.self, forKey: .subject)
         bodyStructure = try container.decodeIfPresent(BodyPart.self, forKey: .bodyStructure)
-        textBody = try container.decode([BodyPart].self, forKey: .textBody)
-        htmlBody = try container.decode([BodyPart].self, forKey: .htmlBody)
-        attachments = try container.decode([BodyPart].self, forKey: .attachments)
-        hasAttachment = try container.decode(Bool.self, forKey: .hasAttachment)
-        preview = try container.decode(String.self, forKey: .preview)
+        textBody = try container.decodeIfPresent([BodyPart].self, forKey: .textBody) ?? []
+        htmlBody = try container.decodeIfPresent([BodyPart].self, forKey: .htmlBody) ?? []
+        attachments = try container.decodeIfPresent([BodyPart].self, forKey: .attachments) ?? []
+        hasAttachment = try container.decodeIfPresent(Bool.self, forKey: .hasAttachment) ?? false
+        preview = try container.decodeIfPresent(String.self, forKey: .preview)
+        bodyValues = try container.decodeIfPresent([String: BodyValue].self, forKey: .bodyValues) ?? [:]
+    }
+
+    /// Decoded value of a single body part, part of [JMAP mail.](https://jmap.io/spec/rfc8621/#section-4.1.4)
+    public struct BodyValue: Decodable, Sendable {
+        public let value: String?
+        public let isTruncated: Bool?
+        public let isEncodingProblem: Bool?
     }
 
     private enum Key: CodingKey {
-        case blobId, threadId, mailboxIds, keywords, size, receivedAt, sentAt, messageId, inReplyTo, references, sender, from, replyTo, to, cc, bcc, subject, bodyStructure, textBody, htmlBody, attachments, hasAttachment, preview, id
+        case blobId, threadId, mailboxIds, keywords, size, receivedAt, sentAt, messageId, inReplyTo, references, sender, from, replyTo, to, cc, bcc, subject, bodyStructure, textBody, htmlBody, attachments, hasAttachment, preview, bodyValues, id
     }
 
     // MARK: Equatable

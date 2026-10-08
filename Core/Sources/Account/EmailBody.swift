@@ -69,8 +69,23 @@ extension EmailBody {
     }
 
     init(email: JMAP.Email) throws {
-        // TODO: JMAP email body decoding and assembly not implemented
-        throw URLError(.cancelled)
+        var texts: [String] = []
+        var htmls: [String] = []
+        for part in email.textBody {
+            if let partID: String = part.partID, let value: String = email.bodyValues[partID]?.value {
+                texts.append(value)
+            }
+        }
+        // Servers may list a plain-text part in both bodies; only genuine HTML belongs here.
+        for part in email.htmlBody where part.type.lowercased().hasPrefix("text/html") {
+            if let partID: String = part.partID, let value: String = email.bodyValues[partID]?.value {
+                htmls.append(value)
+            }
+        }
+        let text: String? = texts.isEmpty ? nil : texts.joined(separator: "\n")
+        // Text-only messages still need something renderable for the reader.
+        let html: String? = htmls.isEmpty ? text?.htmlEscaped() : htmls.joined()
+        self.init(html: html, text: text, preview: email.preview)
     }
 }
 

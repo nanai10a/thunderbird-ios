@@ -39,4 +39,13 @@ extension String {
             .filter { !$0.isEmpty }
             .joined(separator: "\n")
     }
+
+    /// Escape HTML special characters, preserving line breaks for plain-text rendering.
+    func htmlEscaped() -> Self {
+        replacingOccurrences(of: "&", with: "&amp;")
+            .replacingOccurrences(of: "<", with: "&lt;")
+            .replacingOccurrences(of: ">", with: "&gt;")
+            .replacingOccurrences(of: "\"", with: "&quot;")
+            .replacingOccurrences(of: "\n", with: "<br>")
+    }
 }
