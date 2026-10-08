@@ -12,6 +12,7 @@ public enum AccountError: CustomStringConvertible, Error, Equatable {
     case jmap(JMAPError)
     case mime(MIMEError)
     case smtp(SMTPError)
+    case underlying(Error)
 
     public init?(_ error: Error) {
         if let error: Self = error as? Self {
@@ -27,7 +28,7 @@ public enum AccountError: CustomStringConvertible, Error, Equatable {
             case let error as SMTPError:
                 self = .smtp(error)
             default:
-                return nil
+                self = .underlying(error)
             }
         }
     }
@@ -44,6 +45,7 @@ public enum AccountError: CustomStringConvertible, Error, Equatable {
         case .jmap(let error): "JMAP: \(error)"
         case .mime(let error): "MIME: \(error)"
         case .smtp(let error): "SMTP: \(error)"
+        case .underlying(let error): "Underlying: \(error)"
         }
     }
 
